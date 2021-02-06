@@ -1,0 +1,2 @@
+rootProject.name='Tekerleme'
+include ':app'
