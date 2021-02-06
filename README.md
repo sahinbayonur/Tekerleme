@@ -2,4 +2,4 @@
 
 Tekerleme Söyleme Uygulaması
 
-![](images/tekerleme)
+![](images/tekerleme.jpg)
