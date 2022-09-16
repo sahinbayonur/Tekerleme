@@ -160,6 +160,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.e("tablomun listesi", "" + yeniOnurList);
 
                     for (int z = 0; z < mList.size(); z++) {
+                        
                         tekelerme_str.setSpan(new ForegroundColorSpan(Color.GREEN), yeniOnurList.get(z), yeniOnurList.get(z) + mList.get(z).length(),
                                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     }
