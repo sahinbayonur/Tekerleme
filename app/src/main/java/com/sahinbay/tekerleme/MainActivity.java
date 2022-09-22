@@ -28,11 +28,11 @@ public class MainActivity extends AppCompatActivity {
     private String gelen_tekerleme;
     private TextView txtSoylenen;
     private final int REQ_CODE_SPEECH_INPUT = 100;
-    int indexValue = 0;
-    int indexCompareValue = 0;
+    int startSpan = 0;
+    int endSpan = 0;
 
-    String[] list = {"ali veli ali selami ali"};
-    int rastgele = (int) (Math.random() * list.length);
+    String[] list = {"Bizde bize biz derler , sizde size siz derler , sizde bize ne derler"};
+    int randomX = (int) (Math.random() * list.length);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,13 +45,11 @@ public class MainActivity extends AppCompatActivity {
         btnSpeak = (ImageButton) findViewById(R.id.btnSpeak);
         btnContinue = (Button) findViewById(R.id.devam);
 
-        gelen_tekerleme = list[rastgele];
+        gelen_tekerleme = list[randomX];
         txtTekerleme.setText(gelen_tekerleme);
 
         btnContinue.setEnabled(false);
-        // btnContinue.setClickable(false);
-        // btnContinue.setAlpha(0.5f);
-        btnContinue.getBackground().setAlpha(50);
+        btnContinue.setAlpha(0.5f);
 
         btnSpeak.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,10 +63,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 btnContinue.setEnabled(false);
                 btnContinue.setAlpha(0.5f);
-
                 answer.setText("...");
                 answer.setTextColor(Color.WHITE);
-
                 int rastgele = (int) (Math.random() * list.length);
                 gelen_tekerleme = list[rastgele];
                 txtTekerleme.setText(gelen_tekerleme);
@@ -103,8 +99,8 @@ public class MainActivity extends AppCompatActivity {
                     // txtSpeechInput.setText(result.get(0));
 
                     ArrayList<String> mList = new ArrayList<>();
-                    ArrayList<String> artik = new ArrayList<>();
-                    ArrayList<Integer> yeniOnurList = new ArrayList<>();
+                    ArrayList<String> onurs = new ArrayList<>();
+                    ArrayList<String> othermList = new ArrayList<>();
 
                     // if (gelen_tekerleme.equalsIgnoreCase(result.get(0))) {
                     //tekerleme string
@@ -121,62 +117,58 @@ public class MainActivity extends AppCompatActivity {
                     SpannableString soylenen_str = new SpannableString(user_soylenen);
 
                     // Check the matching words
-                    // for (int i = 0; i < tekerleme_words.length; i++) {
+                    for (int i = 0; i < tekerleme_words.length; i++) {
+                        onurs.add(tekerleme_words[i]);
+                    }
 
-                    for (int j = 0; j < soylenen_words.length; j++) {
+                    for (int i = 0; i < onurs.size(); i++) {
 
-                        if (tekerleme_words[j].equalsIgnoreCase(soylenen_words[j])) {
-                            mList.add(tekerleme_words[j]);
-                            Log.e("Check the matching words", "" + mList.size());
-                            // Toast.makeText(getApplicationContext(), "eşleşti" + mList, Toast.LENGTH_SHORT).show();
-                        } else {
-                            artik.add(tekerleme_words[j]);
-                            Log.e("HAYIR", "" + artik.size());
+                        if (onurs.get(i).equalsIgnoreCase(",")) {
+                            onurs.remove(",");
+                            Log.e("STATE", "virgül silindi");
                         }
                     }
-                    // listeyi görmek için log ekledim.
+
+                    for (int j = 0; j < onurs.size(); j++) {
+                        if (j < soylenen_words.length && onurs.get(j).equalsIgnoreCase(soylenen_words[j])) {
+                            mList.add(onurs.get(j));
+                            Log.e("matching words", "" + mList.size());
+                        } else {
+                            othermList.add(onurs.get(j));
+                            Log.e("unmatched words", "" + othermList.size());
+                        }
+                    }
+
+                    Log.e("asıl liste", "" + onurs);
                     Log.e("bu liste", "" + mList);
-                    // }
 
                     SpannableString tekelerme_str = new SpannableString(tekelerme);
 
-                    // make the words bold
                     for (int k = 0; k < mList.size(); k++) {
-                        indexValue = tekelerme.indexOf(mList.get(k));
-                        // str.setSpan(new StyleSpan(Typeface.BOLD), val, val + mList.get(k).length(),
-                        if (indexValue >= indexCompareValue) {
-                            indexCompareValue = indexValue;
-                            Log.e("tab", "" + indexCompareValue + ", bak : " + k);
-                        } else {
-                            indexValue = tekelerme.lastIndexOf(mList.get(k));
-                            indexCompareValue = indexValue;
-                            Log.e("yap", "" + indexCompareValue + ", bak : " + k);
-                        }
-
-                        yeniOnurList.add(indexCompareValue);
-
-                        Log.e("deger", "" + indexValue);
-                    }
-                    Log.e("tablomun listesi", "" + yeniOnurList);
-
-                    for (int z = 0; z < mList.size(); z++) {
-                        tekelerme_str.setSpan(new ForegroundColorSpan(Color.GREEN), yeniOnurList.get(z), yeniOnurList.get(z) + mList.get(z).length(),
+                        startSpan = tekelerme.indexOf(mList.get(k), endSpan);
+                        ForegroundColorSpan foreColour = new ForegroundColorSpan(Color.GREEN);
+                        // Need a NEW span object every loop, else it just moves the span
+                        if (startSpan < 0)
+                            break;
+                        endSpan = startSpan + mList.get(k).length();
+                        tekelerme_str.setSpan(foreColour, startSpan, endSpan,
                                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     }
 
-                    // set text
                     answer.setText(tekelerme_str);
-                    answer.setTextColor(Color.RED);
-
-                    // txtTekerleme.setText(soylenen);
+                    if (tekelerme.contains(",")) {
+                        answer.setTextColor(Color.BLUE);
+                    } else if (!tekelerme.contains(",")) {
+                        answer.setTextColor(Color.RED);
+                    }
                     txtSoylenen.setText(user_soylenen);
                     btnContinue.setEnabled(true);
                     btnContinue.setAlpha(1.0f);
 
-                    indexValue = 0;
-                    indexCompareValue = 0;
-                    // Toast.makeText(getApplicationContext(), "devam aktif", Toast.LENGTH_SHORT).show();
-                    //  }
+                    startSpan = 0;
+                    endSpan = 0;
+
+                    Log.e("btnContinue", "devam butonu aktif");
                 }
                 break;
             }
